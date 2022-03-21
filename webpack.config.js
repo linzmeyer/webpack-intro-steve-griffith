@@ -1,5 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const TerserPlugin = require("terser-webpack-plugin");  // for minifying
+
 
 module.exports = {
   mode: 'development',  // or production
@@ -9,11 +11,11 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].[contenthash].js',
-    assetModuleFilename: '[name].[ext]',  // for images, etc
+    assetModuleFilename: '[name][ext]',  // for images, etc
     clean: true,  // empty the dist folder on run of webpack
   },
 
-  // dev server
+  // dev server & HMR
   devtool: 'inline-source-map',  // tell the browser where a file came from
   devServer: {
     // contentBase: path.resolve(__dirname, 'dist'),  // depricated
@@ -28,7 +30,7 @@ module.exports = {
   // loaders
   module: {
     rules: [
-      // if you come accross a file that ends with .css, us this array of loaders
+      // if you come accross a file that ends with .css, use this array of loaders
       // css-loader looks for the file and turns it into the js module
       // style-loader will take the js import and inject it into the html file
       { test: /\.css$/, use: ['style-loader', 'css-loader'] },  // order is important, reading right to left
@@ -43,9 +45,8 @@ module.exports = {
           options: {
             presets: ['@babel/preset-env']
           }
-        }
-
-      }
+        },
+      },
     ]
   },
 
@@ -56,7 +57,18 @@ module.exports = {
       title: 'Just a Demo',
       filename: 'index.html',
       template: 'src/template.html',  // you may start your html with a template (or not)
-    })
-  ]
+    }),
+    // To generate more than one HTML file, declare the plugin more than once in your plugins array
+    new HtmlWebpackPlugin({
+      title: 'Contact Us',
+      filename: 'contact.html',
+    }),
+
+  ],
+
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin()],
+  },
 }
 
