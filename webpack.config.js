@@ -6,7 +6,9 @@ const TerserPlugin = require("terser-webpack-plugin");  // for minifying
 module.exports = {
   mode: 'development',  // or production
   entry: {
-    main: path.resolve(__dirname, 'src/app.js'),
+    "index": path.resolve(__dirname, 'src/pages/index/index.js'),
+    "about": path.resolve(__dirname, 'src/pages/about/index.js'),
+    "contact-us": path.resolve(__dirname, 'src/pages/contact-us/index.js'),
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -18,12 +20,12 @@ module.exports = {
   // dev server & HMR
   devtool: 'inline-source-map',  // tell the browser where a file came from
   devServer: {
-    // contentBase: path.resolve(__dirname, 'dist'),  // depricated
+    // contentBase: path.resolve(__dirname, 'dist'),  // depricated, don't use contentBase
+    // watchContentBase: true,  // don't use watchContentBase
     static: path.resolve(__dirname, 'dist'),  // new way
     port: 5001,  // default 8080
-    open: true,
-    hot: true,  // HMR
-    // watchContentBase: true,  // watches the 'dist' folder too
+    open: false,  // opens the app in a new tab
+    hot: true,  // adds HMR
     watchFiles: [path.resolve(__dirname, 'src')]
   },
 
@@ -51,22 +53,40 @@ module.exports = {
   },
 
   // plugins
+  /*** HtmlWebpackPlugin Notes
+   * title: The html's <title> content
+   * template: The input html file path
+   * filename: The output html filename in the dist folder
+   * chunks:
+      • Array of js file names
+      • The names are they keys of the 'entry' object in this config file
+      • only include these input js files when injecting the <script> tags into the output html files
+  */
   plugins: [
     // creates an html file in the dist folder
     new HtmlWebpackPlugin({
       title: 'Just a Demo',
       filename: 'index.html',
-      template: 'src/template.html',  // you may start your html with a template (or not)
+      template: 'src/pages/index/index.html',
+      chunks: ['index'],
     }),
     // To generate more than one HTML file, declare the plugin more than once in your plugins array
     new HtmlWebpackPlugin({
-      title: 'Contact Us',
-      filename: 'contact.html',
+      title: 'About',
+      filename: 'about.html',
+      template: 'src/pages/about/index.html',
+      chunks: ['about'],
     }),
-
+    new HtmlWebpackPlugin({
+      title: 'Contact Us',
+      filename: 'contact-us.html',
+      template: 'src/pages/contact-us/index.html',
+      chunks: ['contact-us'],
+    }),
   ],
 
   optimization: {
+    // this TerserPlugin handles minimizing the code
     minimize: true,
     minimizer: [new TerserPlugin()],
   },
